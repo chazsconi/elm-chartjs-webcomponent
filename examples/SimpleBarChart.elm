@@ -2,8 +2,8 @@ module SimpleBarChart exposing (main)
 
 import Browser
 import Chartjs.Chart as Chart
-import Chartjs.Common as Common
-import Chartjs.Data as Data
+import Chartjs.Common as ChartCommon
+import Chartjs.Data as ChartData
 import Chartjs.DataSets.Bar as BarData
 import Color
 import Html exposing (Html, div)
@@ -17,7 +17,6 @@ type alias Model =
     , labels : List String
     , color : Color.Color
     }
-
 
 {-| Initialise the model with some basic data and examples
 -}
@@ -36,13 +35,15 @@ Then we need to make the dataset for our bar chart
 This can be done easily using pipe operators instead of record update syntax
 
 -}
-data : Model -> Data.Data
+data : Model -> ChartData.Data
 data model =
-    Data.dataFromLabels model.labels
-        |> Data.addDataset BarData
-            (BarData.defaultBarFromData "Example Chart" model.data
-                |> BarData.setBackgroundColor (Common.All model.color)
-            )
+    let 
+        dataset =
+            BarData.defaultBarFromData "Example Chart" model.data
+                |> BarData.setBackgroundColor (ChartCommon.All model.color)
+    in
+    ChartData.dataFromLabels model.labels
+        |> ChartData.addDataset (ChartData.BarData dataset)
 
 
 {-| Build the full chart configuration from our model
