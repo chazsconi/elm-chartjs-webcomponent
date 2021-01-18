@@ -4,7 +4,8 @@
   "description": "Web component bridge to Chartjs for Elm Chartjs bindings",
   "main": "webcomponent/chart.js",
   "files": [
-    "/webcomponent/chart.js"
+    "/webcomponent/chart.js",
+    "/src"
   ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -25,5 +26,8 @@
   "homepage": "https://github.com/indicatrix/elm-chartjs-webcomponent#readme",
   "directories": {
     "example": "examples"
+  },
+  "dependencies": {
+    "chart.js": "^2.9.4"
   }
 }
