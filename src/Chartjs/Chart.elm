@@ -2,6 +2,7 @@ module Chartjs.Chart exposing
     ( Chart, Type(..), defaultChart
     , setData, setOptions
     , chart
+    , encodeChart
     )
 
 {-| A type-safe bridge to a Chartjs web component.
@@ -13,12 +14,13 @@ Check the README.md for this package for more detailed instructions on setting u
 
 @docs setData, setOptions
 
-@docs chart
+@docs chart, encodeChart
 
 -}
 
 import Chartjs.Data as Data
 import Chartjs.Internal.Encode
+import Chartjs.Internal.Hash as Hash
 import Chartjs.Internal.Util as Encode
 import Chartjs.Options as Options
 import Html exposing (Html, node)
@@ -92,12 +94,26 @@ chart attributes chart_ =
     node "chart-component" attributesWithConfig []
 
 
+{-| Encodes the chart as json.  This is exposed to help debugging as you
+can output it to the console or the UI.
+-}
 encodeChart : Chart -> Encode.Value
 encodeChart chart_ =
-    Encode.beginObject
-        |> Encode.customField "type" encodeChartType chart_.chartType
-        |> Encode.customField "data" Chartjs.Internal.Encode.encodeData chart_.data
-        |> Encode.customField "options" Chartjs.Internal.Encode.encodeOptions chart_.options
+    let
+        object =
+            Encode.beginObject
+                |> Encode.customField "type" encodeChartType chart_.chartType
+                |> Encode.customField "data" Chartjs.Internal.Encode.encodeData chart_.data
+                |> Encode.customField "options" Chartjs.Internal.Encode.encodeOptions chart_.options
+
+        json =
+            object |> Encode.toValue |> Encode.encode 0
+
+        hash =
+            Hash.hash json
+    in
+    object
+        |> Encode.intField "_hash" hash
         |> Encode.toValue
 
 

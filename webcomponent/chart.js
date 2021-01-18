@@ -24,6 +24,11 @@ class ChartjsChart extends window.HTMLElement {
   }
 
   set chartConfig (newValue) {
+    // Do not update the chart if the config has not changed
+    // this prevents flickering on tooltips
+    if (newValue._hash == this._chartConfig._hash) {
+      return
+    }
     this._chartConfig = newValue
 
     if (this._chart) {
