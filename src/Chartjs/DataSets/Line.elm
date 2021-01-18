@@ -1,12 +1,13 @@
 module Chartjs.DataSets.Line exposing
-    ( DataSet, defaultLineFromLabel, defaultLineFromData
+    ( DataSet, defaultLineFromLabel, defaultLineFromData, defaultLineFromPointData
     , SteppedLine(..), FillMode(..), FillBoundary(..)
     , setData, setXAxisID, setYAxisID, setBackgroundColor
     , setBorderColor, setBorderWidth, setBorderDash, setBorderDashOffset, setBorderCapStyle, setBorderJoinStyle
-    , setCubicInterpolationMode, setFill, setLineTension
+    , setColor, setCubicInterpolationMode, setFill, setLineTension
     , setPointBackgroundColor, setPointBorderColor, setPointBorderWidth, setPointRadius, setPointStyle, setPointRotation, setPointHitRadius
     , setPointHoverBackgroundColor, setPointHoverBorderColor, setPointHoverBorderWidth, setPointHoverRadius
     , setShowLine, setSpanGaps, setSteppedLine
+    , DataItems(..)
     )
 
 {-| A line chart plots data points on a line. Often used to show trend data or compare data sets.
@@ -15,19 +16,27 @@ This dataset class can handle categorical scatter charts and area charts as well
 For categorical scatter charts, set showLine to be False
 For area datasets, ensure that the fill mode is enabled and a background color is set
 
-@docs DataSet, defaultLineFromLabel, defaultLineFromData
+@docs DataSet, defaultLineFromLabel, defaultLineFromData, defaultLineFromPointData
 @docs SteppedLine, FillMode, FillBoundary
 @docs setData, setXAxisID, setYAxisID, setBackgroundColor
 @docs setBorderColor, setBorderWidth, setBorderDash, setBorderDashOffset, setBorderCapStyle, setBorderJoinStyle
-@docs setCubicInterpolationMode, setFill, setLineTension
+@docs setColor, setCubicInterpolationMode, setFill, setLineTension
 @docs setPointBackgroundColor, setPointBorderColor, setPointBorderWidth, setPointRadius, setPointStyle, setPointRotation, setPointHitRadius
 @docs setPointHoverBackgroundColor, setPointHoverBorderColor, setPointHoverBorderWidth, setPointHoverRadius
 @docs setShowLine, setSpanGaps, setSteppedLine
-
+@docs DataItems
 -}
 
 import Chartjs.Common as Common
 import Color exposing (Color)
+
+{-| DataItems can either be numbers in which case the x-axis is generally a category specified via labels.
+For a scatter chart, a list of points is given.
+See <https://www.chartjs.org/docs/latest/charts/line.html#data-structure>
+-}
+type DataItems
+    = Numbers (List Float)
+    | Points (List ( Float, Float ))
 
 
 {-| For further information on these properties, see <https://www.chartjs.org/docs/latest/charts/line.html>
@@ -44,7 +53,7 @@ Instead use the updater pipeline functions:
 -}
 type alias DataSet =
     { label : String
-    , data : List Float
+    , data : DataItems
     , xAxisID : Maybe String
     , yAxisID : Maybe String
     , backgroundColor : Maybe (Common.PointProperty Color)
@@ -54,6 +63,7 @@ type alias DataSet =
     , borderDashOffset : Maybe Float
     , borderCapStyle : Maybe String
     , borderJoinStyle : Maybe String
+    , color : Maybe (Common.PointProperty Color)
     , cubicInterpolationMode : Maybe String
     , fill : Maybe FillMode
     , lineTension : Maybe Float
@@ -122,7 +132,7 @@ defaultLineFromLabel label =
 defaultLineFromData : String -> List Float -> DataSet
 defaultLineFromData label data =
     { label = label
-    , data = data
+    , data = Numbers data
     , xAxisID = Nothing
     , yAxisID = Nothing
     , backgroundColor = Nothing
@@ -132,6 +142,7 @@ defaultLineFromData label data =
     , borderDashOffset = Nothing
     , borderCapStyle = Nothing
     , borderJoinStyle = Nothing
+    , color = Nothing
     , cubicInterpolationMode = Nothing
     , fill = Nothing
     , lineTension = Nothing
@@ -151,13 +162,23 @@ defaultLineFromData label data =
     , steppedLine = Nothing
     }
 
+{-| Create a Line dataset from point data
+-}
+defaultLineFromPointData : String -> List ( Float, Float ) -> DataSet
+defaultLineFromPointData label data =
+    let
+        dataset =
+            defaultLineFromData label []
+    in
+    { dataset | data = Points data }
+
 
 {-| Set the data displayed by this dataset
 This is a list of floats, where each float is represented as a point on the line
 -}
 setData : List Float -> DataSet -> DataSet
 setData data dataset =
-    { dataset | data = data }
+    { dataset | data = Numbers data }
 
 
 {-| The ID of the X axis to plot this dataset on
@@ -187,6 +208,14 @@ setBackgroundColor color dataset =
 setBorderColor : Common.PointProperty Color -> DataSet -> DataSet
 setBorderColor color dataset =
     { dataset | borderColor = Just color }
+
+
+{-| Color of the line
+Applies for area charts
+-}
+setColor : Common.PointProperty Color -> DataSet -> DataSet
+setColor color dataset =
+    { dataset | color = Just color }
 
 
 {-| Line width (in pixels)

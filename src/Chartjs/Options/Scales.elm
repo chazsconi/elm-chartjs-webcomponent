@@ -1,12 +1,16 @@
 module Chartjs.Options.Scales exposing
     ( Scales, defaultScales, scalesFromAxes
     , Axis, defaultAxis
-    , setPosition, setStacked, setTicks, setGridLines
+    , setPosition, setStacked, setTicks, setGridLines, setID
+    , AxisType(..), setType
     , Ticks, defaultTicks
     , setFontFamily, setBeginAtZero, setMin, setMax, setMaxTicksLimit, setPrecision
     , setStepSize, setSuggestedMax, setSuggestedMin, setFontColor
     , GridLines, defaultGridLines
     , setDisplay, setColor
+    , ScaleLabel, defaultScaleLabel
+    , setLabelString
+    , setScaleLabel
     )
 
 {-| Axes are an integral part of a chart.
@@ -18,7 +22,8 @@ For more information, see <https://www.chartjs.org/docs/latest/axes/>
 
 @docs Scales, defaultScales, scalesFromAxes
 @docs Axis, defaultAxis
-@docs setPosition, setStacked, setTicks, setGridLines
+@docs setPosition, setStacked, setTicks, setGridLines, setID
+@docs AxisType, setType
 
 @docs Ticks, defaultTicks
 @docs setFontFamily, setBeginAtZero, setMin, setMax, setMaxTicksLimit, setPrecision
@@ -26,6 +31,9 @@ For more information, see <https://www.chartjs.org/docs/latest/axes/>
 
 @docs GridLines, defaultGridLines
 @docs setDisplay, setColor
+
+@docs ScaleLabel, defaultScaleLabel
+@docs setLabelString, setScaleLabel
 
 -}
 
@@ -62,10 +70,13 @@ scalesFromAxes xAxes yAxes =
 {-| A single axis for a chart
 -}
 type alias Axis =
-    { position : Maybe Common.Position
+    { id : Maybe String
+    , position : Maybe Common.Position
     , stacked : Maybe Bool
     , ticks : Maybe Ticks
     , gridLines : Maybe GridLines
+    , type_ : Maybe AxisType
+    , scaleLabel : Maybe ScaleLabel
     }
 
 
@@ -73,11 +84,21 @@ type alias Axis =
 -}
 defaultAxis : Axis
 defaultAxis =
-    { position = Nothing
+    { id = Nothing
+    , position = Nothing
     , stacked = Nothing
     , ticks = Nothing
     , gridLines = Nothing
+    , type_ = Nothing
+    , scaleLabel = Nothing
     }
+
+
+{-| ID of the axis
+-}
+setID : String -> Axis -> Axis
+setID id axis =
+    { axis | id = Just id }
 
 
 {-| Position of the axis in the chart
@@ -106,6 +127,29 @@ setTicks ticks axis =
 setGridLines : GridLines -> Axis -> Axis
 setGridLines gridLines axis =
     { axis | gridLines = Just gridLines }
+
+
+{-| Axis type config
+-}
+type AxisType
+    = Linear
+    | Logarithmic
+    | Category
+    | Time
+
+
+{-| Set Axis type
+-}
+setType : AxisType -> Axis -> Axis
+setType type_ axis =
+    { axis | type_ = Just type_ }
+
+
+{-| Scale label config
+-}
+setScaleLabel : ScaleLabel -> Axis -> Axis
+setScaleLabel scaleLabel axis =
+    { axis | scaleLabel = Just scaleLabel }
 
 
 {-| Type structure for a single axes
@@ -250,3 +294,26 @@ setDisplay bool gridLines =
 setColor : Common.PointProperty Color -> GridLines -> GridLines
 setColor color gridLines =
     { gridLines | color = Just color }
+
+
+{-| Create an scale label object
+-}
+type alias ScaleLabel =
+    { display : Maybe Bool
+    , labelString : Maybe String
+    }
+
+
+{-| Create an empty grid lines object
+-}
+defaultScaleLabel : ScaleLabel
+defaultScaleLabel =
+    { display = Nothing
+    , labelString = Nothing
+    }
+
+{-| Sets the label string and makes it visible
+-}
+setLabelString : String -> ScaleLabel -> ScaleLabel
+setLabelString label scaleLabel =
+    { scaleLabel | labelString = Just label, display = Just True }

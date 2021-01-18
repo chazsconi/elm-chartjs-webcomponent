@@ -1,6 +1,6 @@
 module Chartjs.Options exposing
     ( Options, defaultOptions
-    , setAnimations, setElements, setLayout, setLegend, setMaintainAspectRatio, setResponsive, setScales, setTitle, setTooltips
+    , setAnimations, setElements, setLayout, setLegend, setMaintainAspectRatio, setResponsive, setScales, setTitle, setTooltips, setAspectRatio
     )
 
 {-| The Options type is used for configuring how the chart behaves
@@ -8,7 +8,7 @@ This contains properties to control things like styling, fonts, etc.
 
 @docs Options, defaultOptions
 
-@docs setAnimations, setElements, setLayout, setLegend, setMaintainAspectRatio, setResponsive, setScales, setTitle, setTooltips
+@docs setAnimations, setElements, setLayout, setLegend, setMaintainAspectRatio, setResponsive, setScales, setTitle, setTooltips, setAspectRatio
 
 -}
 
@@ -36,6 +36,7 @@ type alias Options =
     , cutoutPercentage : Maybe Int
     , rotation : Maybe Float
     , circumference : Maybe Float
+    , aspectRatio : Maybe Float
     }
 
 
@@ -55,6 +56,7 @@ defaultOptions =
     , cutoutPercentage = Nothing
     , rotation = Nothing
     , circumference = Nothing
+    , aspectRatio = Nothing
     }
 
 
@@ -143,3 +145,10 @@ setRotation rotation options =
 setCircumference : Float -> Options -> Options
 setCircumference circumference options =
     { options | circumference = Just circumference }
+
+
+{-| Set the aspect ratio
+-}
+setAspectRatio : Float -> Options -> Options
+setAspectRatio aspectRatio options =
+    { options | aspectRatio = Just aspectRatio }

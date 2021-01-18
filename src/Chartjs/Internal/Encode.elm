@@ -87,7 +87,7 @@ encodeLineChartDataSet : Chartjs.DataSets.Line.DataSet -> Encode.Value
 encodeLineChartDataSet lineChartDataSet =
     Encode.beginObject
         |> Encode.stringField "label" lineChartDataSet.label
-        |> Encode.listField "data" Encode.float lineChartDataSet.data
+        |> Encode.customField "data" encodeDataItems lineChartDataSet.data
         |> Encode.maybeStringField "xAxisID" lineChartDataSet.xAxisID
         |> Encode.maybeStringField "yAxisID" lineChartDataSet.yAxisID
         |> Encode.maybeCustomField "backgroundColor" (encodePointProperty Encode.encodeColor) lineChartDataSet.backgroundColor
@@ -114,6 +114,23 @@ encodeLineChartDataSet lineChartDataSet =
         |> Encode.maybeBoolField "spanGaps" lineChartDataSet.spanGaps
         |> Encode.maybeCustomField "steppedLine" encodeSteppedLine lineChartDataSet.steppedLine
         |> Encode.toValue
+
+
+encodeDataItems : Chartjs.DataSets.Line.DataItems -> Encode.Value
+encodeDataItems items =
+    case items of
+        Chartjs.DataSets.Line.Numbers numbers ->
+            Encode.list Encode.float numbers
+
+        Chartjs.DataSets.Line.Points points ->
+            Encode.list
+                (\( x, y ) ->
+                    Encode.beginObject
+                        |> Encode.floatField "x" x
+                        |> Encode.floatField "y" y
+                        |> Encode.toValue
+                )
+                points
 
 
 encodePolarDataSet : Chartjs.DataSets.Polar.DataSet -> Encode.Value
@@ -291,7 +308,7 @@ encodeDataset dataSet =
 encodeOptions : Chartjs.Options.Options -> Encode.Value
 encodeOptions options =
     Encode.beginObject
-        |> Encode.maybeCustomField "animations" encodeAnimations options.animations
+        |> Encode.maybeCustomField "animation" encodeAnimations options.animations
         |> Encode.maybeCustomField "layout" encodeLayout options.layout
         |> Encode.maybeCustomField "legend" encodeLegend options.legend
         |> Encode.maybeCustomField "title" encodeTitle options.title
@@ -303,6 +320,7 @@ encodeOptions options =
         |> Encode.maybeIntField "cutoutPercentage" options.cutoutPercentage
         |> Encode.maybeFloatField "rotation" options.rotation
         |> Encode.maybeFloatField "circumfernece" options.circumference
+        |> Encode.maybeFloatField "aspectRatio" options.aspectRatio
         |> Encode.toValue
 
 
@@ -544,11 +562,32 @@ encodeScales scales =
 encodeAxis : Chartjs.Options.Scales.Axis -> Encode.Value
 encodeAxis axis =
     Encode.beginObject
+        |> Encode.maybeStringField "id" axis.id
         |> Encode.maybeCustomField "position" encodePosition axis.position
         |> Encode.maybeBoolField "stacked" axis.stacked
         |> Encode.maybeCustomField "ticks" encodeTicks axis.ticks
         |> Encode.maybeCustomField "gridLines" encodeGridLines axis.gridLines
+        |> Encode.maybeCustomField "type" encodeAxisType axis.type_
+        |> Encode.maybeCustomField "scaleLabel" encodeScaleLabel axis.scaleLabel
         |> Encode.toValue
+
+
+encodeAxisType : Chartjs.Options.Scales.AxisType -> Encode.Value
+encodeAxisType type_ =
+    (case type_ of
+        Chartjs.Options.Scales.Linear ->
+            "linear"
+
+        Chartjs.Options.Scales.Logarithmic ->
+            "logarithmic"
+
+        Chartjs.Options.Scales.Category ->
+            "category"
+
+        Chartjs.Options.Scales.Time ->
+            "time"
+    )
+        |> Encode.string
 
 
 encodeTicks : Chartjs.Options.Scales.Ticks -> Encode.Value
@@ -573,6 +612,14 @@ encodeGridLines gridLines =
     Encode.beginObject
         |> Encode.maybeBoolField "display" gridLines.display
         |> Encode.maybeCustomField "color" (encodePointProperty Encode.encodeColor) gridLines.color
+        |> Encode.toValue
+
+
+encodeScaleLabel : Chartjs.Options.Scales.ScaleLabel -> Encode.Value
+encodeScaleLabel scaleLabel =
+    Encode.beginObject
+        |> Encode.maybeBoolField "display" scaleLabel.display
+        |> Encode.maybeStringField "labelString" scaleLabel.labelString
         |> Encode.toValue
 
 
