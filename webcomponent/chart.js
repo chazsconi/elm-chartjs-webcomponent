@@ -7,13 +7,13 @@
 import Chart from 'chart.js'
 
 class ChartjsChart extends window.HTMLElement {
-  constructor () {
+  constructor() {
     const self = super()
     this._chartConfig = {}
     return self
   }
 
-  connectedCallback () {
+  connectedCallback() {
     const canvas = document.createElement('canvas')
     this._canvas = canvas
     this.appendChild(canvas)
@@ -23,7 +23,7 @@ class ChartjsChart extends window.HTMLElement {
     this._chart = new Chart(ctx, this._chartConfig)
   }
 
-  set chartConfig (newValue) {
+  set chartConfig(newValue) {
     // Do not update the chart if the config has not changed
     // this prevents flickering on tooltips
     if (newValue._hash == this._chartConfig._hash) {
@@ -38,13 +38,14 @@ class ChartjsChart extends window.HTMLElement {
       // Update all datasets
       for (let i = 0; i < newDatasets.length; i++) {
         // Copying the meta will keep the animations between them smooth
-        if(oldDatasets[i]) {
+        if (oldDatasets[i]) {
           newDatasets[i]._meta = oldDatasets[i]._meta
         }
         oldDatasets[i] = newDatasets[i]
       }
 
-      // Update options and then call ChartJs update
+      // Update labels and options and then call ChartJs update
+      this._chart.data.labels = newValue.data.labels
       this._chart.options = newValue.options
       this._chart.update()
     }
